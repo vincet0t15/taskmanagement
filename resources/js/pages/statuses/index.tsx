@@ -103,9 +103,6 @@ export default function Index({ statuses, filters }: IndexProps) {
                                     Name
                                 </TableHead>
                                 <TableHead className="font-bold text-primary">
-                                    Slug
-                                </TableHead>
-                                <TableHead className="font-bold text-primary">
                                     Description
                                 </TableHead>
                                 <TableHead className="font-bold text-primary">
@@ -135,9 +132,6 @@ export default function Index({ statuses, filters }: IndexProps) {
                                         </TableCell>
                                         <TableCell className="text-sm font-medium">
                                             {status.name}
-                                        </TableCell>
-                                        <TableCell className="font-mono text-xs">
-                                            {status.slug}
                                         </TableCell>
                                         <TableCell className="text-sm">
                                             {status.description || (
@@ -182,7 +176,7 @@ export default function Index({ statuses, filters }: IndexProps) {
                             ) : (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={6}
+                                        colSpan={5}
                                         className="py-3 text-center text-gray-500"
                                     >
                                         No data available.

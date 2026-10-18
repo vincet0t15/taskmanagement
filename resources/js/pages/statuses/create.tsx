@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { useEffect, useRef, useState, type FormEventHandler } from 'react';
+import type { FormEventHandler } from 'react';
 import ColorPicker from '@/components/color-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -22,14 +22,6 @@ interface CreateStatusDialogProps {
     onClose: () => void;
 }
 
-const slugify = (value: string) =>
-    value
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/[\s-]+/g, '-')
-        .replace(/^-|-$/g, '');
-
 export function CreateStatusDialog({
     isOpen,
     onClose,
@@ -37,22 +29,10 @@ export function CreateStatusDialog({
     const { data, setData, post, reset, errors, processing } =
         useForm<StatusCreateRequest>({
             name: '',
-            slug: '',
             color: '#2563EB',
             description: '',
             sort_order: 0,
         });
-
-    // Tracks whether the user has edited the slug by hand. If they have not,
-    // it keeps following the name so they only think of one field.
-    const slugEdited = useRef(false);
-    const [slugTouched, setSlugTouched] = useState(false);
-
-    useEffect(() => {
-        if (!slugEdited.current) {
-            setData('slug', slugify(data.name));
-        }
-    }, [data.name, setData]);
 
     const onSubmit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -61,8 +41,6 @@ export function CreateStatusDialog({
             onSuccess: () => {
                 onClose();
                 reset();
-                slugEdited.current = false;
-                setSlugTouched(false);
             },
         });
     };
@@ -71,8 +49,6 @@ export function CreateStatusDialog({
         if (!open) {
             onClose();
             reset();
-            slugEdited.current = false;
-            setSlugTouched(false);
         }
     };
 
@@ -99,27 +75,6 @@ export function CreateStatusDialog({
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         <InputError message={errors.name} />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="slug">Slug</Label>
-                        <Input
-                            id="slug"
-                            name="slug"
-                            placeholder="e.g. in-review"
-                            value={data.slug}
-                            onChange={(e) => {
-                                slugEdited.current = true;
-                                setSlugTouched(true);
-                                setData('slug', e.target.value);
-                            }}
-                        />
-                        <InputError message={errors.slug} />
-                        {!slugTouched && data.name && (
-                            <p className="text-xs text-muted-foreground">
-                                Generated from the name. You can still edit it.
-                            </p>
-                        )}
                     </div>
 
                     <ColorPicker

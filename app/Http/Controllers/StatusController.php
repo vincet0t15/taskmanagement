@@ -38,7 +38,6 @@ class StatusController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:statuses,name'],
-            'slug' => ['required', 'string', 'max:255', 'unique:statuses,slug'],
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'description' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:9999'],
@@ -58,7 +57,6 @@ class StatusController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('statuses', 'name')->ignore($status->id)],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('statuses', 'slug')->ignore($status->id)],
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'description' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:9999'],

@@ -18,8 +18,7 @@ class WorkspaceRepository implements WorkspaceRepositoryInterface
     {
         return $this->model->query()
             ->when($search, function ($query, string $search): void {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%");
+                $query->where('name', 'like', "%{$search}%");
             })
             ->orderBy('name')
             ->paginate($perPage)

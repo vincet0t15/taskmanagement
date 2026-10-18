@@ -1,6 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { useEffect, useRef, useState, type FormEventHandler } from 'react';
-import ColorPicker from '@/components/color-picker';
+import type { FormEventHandler } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import workspaceRoutes from '@/routes/workspaces';
 import type { WorkspaceCreateRequest } from '@/types/workspace';
 
@@ -22,14 +22,6 @@ interface CreateWorkspaceDialogProps {
     onClose: () => void;
 }
 
-const slugify = (value: string) =>
-    value
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/[\s-]+/g, '-')
-        .replace(/^-|-$/g, '');
-
 export function CreateWorkspaceDialog({
     isOpen,
     onClose,
@@ -37,21 +29,8 @@ export function CreateWorkspaceDialog({
     const { data, setData, post, reset, errors, processing } =
         useForm<WorkspaceCreateRequest>({
             name: '',
-            slug: '',
-            color: '#2563EB',
             description: '',
         });
-
-    // Tracks whether the user has edited the slug by hand. If they have not,
-    // it keeps following the name so they only think of one field.
-    const slugEdited = useRef(false);
-    const [slugTouched, setSlugTouched] = useState(false);
-
-    useEffect(() => {
-        if (!slugEdited.current) {
-            setData('slug', slugify(data.name));
-        }
-    }, [data.name, setData]);
 
     const onSubmit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -60,8 +39,6 @@ export function CreateWorkspaceDialog({
             onSuccess: () => {
                 onClose();
                 reset();
-                slugEdited.current = false;
-                setSlugTouched(false);
             },
         });
     };
@@ -70,8 +47,6 @@ export function CreateWorkspaceDialog({
         if (!open) {
             onClose();
             reset();
-            slugEdited.current = false;
-            setSlugTouched(false);
         }
     };
 
@@ -83,8 +58,7 @@ export function CreateWorkspaceDialog({
                         <DialogTitle>Create Workspace</DialogTitle>
                         <DialogDescription className="text-xs">
                             Add a new workspace to group related tasks, such as
-                            Operations or Projects. The color is used wherever
-                            the workspace is displayed.
+                            Operations or Projects.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -101,42 +75,13 @@ export function CreateWorkspaceDialog({
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="slug">Slug</Label>
-                        <Input
-                            id="slug"
-                            name="slug"
-                            placeholder="e.g. community-programs"
-                            value={data.slug}
-                            onChange={(e) => {
-                                slugEdited.current = true;
-                                setSlugTouched(true);
-                                setData('slug', e.target.value);
-                            }}
-                        />
-                        <InputError message={errors.slug} />
-                        {!slugTouched && data.name && (
-                            <p className="text-xs text-muted-foreground">
-                                Generated from the name. You can still edit it.
-                            </p>
-                        )}
-                    </div>
-
-                    <ColorPicker
-                        id="color"
-                        value={data.color}
-                        onValueChange={(color) => setData('color', color)}
-                        error={errors.color}
-                        disabled={processing}
-                    />
-
-                    <div className="grid gap-2">
                         <Label htmlFor="description">
                             Description{' '}
                             <span className="text-muted-foreground">
                                 (optional)
                             </span>
                         </Label>
-                        <Input
+                        <Textarea
                             id="description"
                             name="description"
                             placeholder="e.g. Programs serving the wider community"

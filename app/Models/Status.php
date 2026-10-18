@@ -11,14 +11,13 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property string $name
- * @property string $slug
  * @property string $color
  * @property string|null $description
  * @property int $sort_order
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'slug', 'color', 'description', 'sort_order'])]
+#[Fillable(['name', 'color', 'description', 'sort_order'])]
 class Status extends Model
 {
     /** @use HasFactory<StatusFactory> */

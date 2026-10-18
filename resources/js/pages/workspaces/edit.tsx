@@ -1,6 +1,5 @@
 import { useForm } from '@inertiajs/react';
 import type { FormEventHandler } from 'react';
-import ColorPicker from '@/components/color-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import workspaceRoutes from '@/routes/workspaces';
 import type { Workspace, WorkspaceCreateRequest } from '@/types/workspace';
 
@@ -31,8 +31,6 @@ export function EditWorkspaceDialog({
     const { data, setData, put, reset, errors, processing } =
         useForm<WorkspaceCreateRequest>({
             name: workspace.name,
-            slug: workspace.slug,
-            color: workspace.color,
             description: workspace.description,
         });
 
@@ -61,8 +59,7 @@ export function EditWorkspaceDialog({
                     <DialogHeader>
                         <DialogTitle>Edit Workspace</DialogTitle>
                         <DialogDescription className="text-xs">
-                            Update the workspace details. Changing the color
-                            updates everywhere this workspace is shown.
+                            Update the workspace details.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -79,33 +76,13 @@ export function EditWorkspaceDialog({
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="slug">Slug</Label>
-                        <Input
-                            id="slug"
-                            name="slug"
-                            placeholder="e.g. community-programs"
-                            value={data.slug}
-                            onChange={(e) => setData('slug', e.target.value)}
-                        />
-                        <InputError message={errors.slug} />
-                    </div>
-
-                    <ColorPicker
-                        id="color"
-                        value={data.color}
-                        onValueChange={(color) => setData('color', color)}
-                        error={errors.color}
-                        disabled={processing}
-                    />
-
-                    <div className="grid gap-2">
                         <Label htmlFor="description">
                             Description{' '}
                             <span className="text-muted-foreground">
                                 (optional)
                             </span>
                         </Label>
-                        <Input
+                        <Textarea
                             id="description"
                             name="description"
                             placeholder="e.g. Programs serving the wider community"

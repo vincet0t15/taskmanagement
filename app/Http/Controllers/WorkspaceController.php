@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Repositories\WorkspaceRepositoryInterface;
 use App\Models\Workspace;
+use App\Services\WorkspaceDashboardSampleData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,7 @@ class WorkspaceController extends Controller
 {
     public function __construct(
         private readonly WorkspaceRepositoryInterface $workspaceRepo,
+        private readonly WorkspaceDashboardSampleData $dashboardData,
     ) {}
 
     /**
@@ -32,14 +34,34 @@ class WorkspaceController extends Controller
     }
 
     /**
+     * Display the tasks view for the specified workspace (styled after Project Detail).
+     */
+    public function show(Workspace $workspace): Response
+    {
+        return Inertia::render('workspaces/tasks', [
+            'workspace' => $workspace,
+            'dashboard' => $this->dashboardData->for($workspace),
+        ]);
+    }
+
+    /**
+     * Display the tasks view for the specified workspace (styled after Project Detail).
+     */
+    public function tasks(Workspace $workspace): Response
+    {
+        return Inertia::render('workspaces/tasks', [
+            'workspace' => $workspace,
+            'dashboard' => $this->dashboardData->for($workspace),
+        ]);
+    }
+
+    /**
      * Store a newly created workspace.
      */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:workspaces,name'],
-            'slug' => ['required', 'string', 'max:255', 'unique:workspaces,slug'],
-            'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -57,8 +79,6 @@ class WorkspaceController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('workspaces', 'name')->ignore($workspace->id)],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('workspaces', 'slug')->ignore($workspace->id)],
-            'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 

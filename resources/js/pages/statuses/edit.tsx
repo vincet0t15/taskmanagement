@@ -31,7 +31,6 @@ export function EditStatusDialog({
     const { data, setData, put, reset, errors, processing } =
         useForm<StatusCreateRequest>({
             name: status.name,
-            slug: status.slug,
             color: status.color,
             description: status.description,
             sort_order: status.sort_order,
@@ -77,18 +76,6 @@ export function EditStatusDialog({
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         <InputError message={errors.name} />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="slug">Slug</Label>
-                        <Input
-                            id="slug"
-                            name="slug"
-                            placeholder="e.g. in-review"
-                            value={data.slug}
-                            onChange={(e) => setData('slug', e.target.value)}
-                        />
-                        <InputError message={errors.slug} />
                     </div>
 
                     <ColorPicker

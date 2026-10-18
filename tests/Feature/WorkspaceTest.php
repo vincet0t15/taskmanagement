@@ -39,60 +39,38 @@ test('a workspace can be created', function () {
     $this->actingAs($this->admin)
         ->post(route('workspaces.store'), [
             'name' => 'Community Programs',
-            'slug' => 'community-programs',
-            'color' => '#2563EB',
             'description' => 'Programs serving the wider community.',
         ])
         ->assertSessionHasNoErrors()
         ->assertRedirect();
 
-    expect(Workspace::where('slug', 'community-programs')->exists())->toBeTrue();
+    expect(Workspace::where('name', 'Community Programs')->exists())->toBeTrue();
 });
 
-test('a workspace requires a valid hex color', function () {
-    $this->actingAs($this->admin)
-        ->post(route('workspaces.store'), [
-            'name' => 'Bad Color',
-            'slug' => 'bad-color',
-            'color' => 'blue',
-        ])
-        ->assertSessionHasErrors('color');
-
-    expect(Workspace::where('slug', 'bad-color')->exists())->toBeFalse();
-});
-
-test('workspace name and slug are required and unique', function () {
+test('workspace name is required and unique', function () {
     $this->actingAs($this->admin)
         ->post(route('workspaces.store'), [])
-        ->assertSessionHasErrors(['name', 'slug', 'color']);
+        ->assertSessionHasErrors(['name']);
 
     Workspace::create([
         'name' => 'Duplicate',
-        'slug' => 'duplicate',
-        'color' => '#000000',
     ]);
 
     $this->actingAs($this->admin)
         ->post(route('workspaces.store'), [
             'name' => 'Duplicate',
-            'slug' => 'duplicate',
-            'color' => '#000000',
         ])
-        ->assertSessionHasErrors(['name', 'slug']);
+        ->assertSessionHasErrors(['name']);
 });
 
 test('a workspace can be updated', function () {
     $workspace = Workspace::create([
         'name' => 'Old Name',
-        'slug' => 'old-name',
-        'color' => '#000000',
     ]);
 
     $this->actingAs($this->admin)
         ->put(route('workspaces.update', $workspace), [
             'name' => 'New Name',
-            'slug' => 'new-name',
-            'color' => '#16A34A',
             'description' => null,
         ])
         ->assertSessionHasNoErrors()
@@ -101,39 +79,90 @@ test('a workspace can be updated', function () {
     $workspace->refresh();
 
     expect($workspace->name)->toBe('New Name');
-    expect($workspace->slug)->toBe('new-name');
-    expect($workspace->color)->toBe('#16A34A');
 });
 
-test('updating a workspace ignores its own name and slug', function () {
+test('updating a workspace ignores its own name', function () {
     $workspace = Workspace::create([
         'name' => 'Kept',
-        'slug' => 'kept',
-        'color' => '#000000',
     ]);
 
     $this->actingAs($this->admin)
         ->put(route('workspaces.update', $workspace), [
-            'name' => 'Kept Renamed',
-            'slug' => 'kept-renamed',
-            'color' => '#000000',
+            'name' => 'Kept',
             'description' => null,
         ])
         ->assertSessionHasNoErrors();
 
-    expect($workspace->refresh()->name)->toBe('Kept Renamed');
+    expect($workspace->refresh()->name)->toBe('Kept');
 });
 
 test('a workspace can be deleted', function () {
     $workspace = Workspace::create([
         'name' => 'Disposable',
-        'slug' => 'disposable',
-        'color' => '#000000',
     ]);
 
     $this->actingAs($this->admin)
         ->delete(route('workspaces.destroy', $workspace))
         ->assertRedirect();
 
-    expect(Workspace::where('slug', 'disposable')->exists())->toBeFalse();
+    expect(Workspace::where('name', 'Disposable')->exists())->toBeFalse();
+});
+
+test('authorized users can view a workspace dashboard', function () {
+    $workspace = Workspace::create([
+        'name' => 'Dashboard Host',
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get(route('workspaces.show', $workspace))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('workspaces/tasks')
+            ->where('workspace.id', $workspace->id)
+            ->has('dashboard.stats', 4)
+            ->has('dashboard.overview.series', 2)
+            ->has('dashboard.monthly.data', 6)
+            ->has('dashboard.reminders')
+            ->has('dashboard.recent_tasks')
+        );
+});
+
+test('the dashboard sample data is deterministic per workspace', function () {
+    $workspace = Workspace::create([
+        'name' => 'Stable Data',
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get(route('workspaces.show', $workspace))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('workspaces/tasks')
+            ->has('dashboard')
+        );
+});
+
+test('the dashboard sample data differs between workspaces', function () {
+    $alpha = Workspace::create(['name' => 'Alpha']);
+    $beta = Workspace::create(['name' => 'Beta']);
+
+    $this->actingAs($this->admin)
+        ->get(route('workspaces.show', $alpha))
+        ->assertOk();
+
+    $this->actingAs($this->admin)
+        ->get(route('workspaces.show', $beta))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('workspaces/tasks')
+            ->has('dashboard')
+        );
+});
+
+test('guests are redirected away from a workspace dashboard', function () {
+    $workspace = Workspace::create([
+        'name' => 'Guest Blocked',
+    ]);
+
+    $this->get(route('workspaces.show', $workspace))
+        ->assertRedirect(route('login'));
 });

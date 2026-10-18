@@ -39,7 +39,6 @@ test('a status can be created', function () {
     $this->actingAs($this->admin)
         ->post(route('statuses.store'), [
             'name' => 'In Review',
-            'slug' => 'in-review',
             'color' => '#2563EB',
             'description' => 'Waiting on feedback.',
             'sort_order' => 6,
@@ -47,30 +46,28 @@ test('a status can be created', function () {
         ->assertSessionHasNoErrors()
         ->assertRedirect();
 
-    expect(Status::where('slug', 'in-review')->exists())->toBeTrue();
+    expect(Status::where('name', 'In Review')->exists())->toBeTrue();
 });
 
 test('a status requires a valid hex color', function () {
     $this->actingAs($this->admin)
         ->post(route('statuses.store'), [
             'name' => 'Bad Color',
-            'slug' => 'bad-color',
             'color' => 'blue',
             'sort_order' => 1,
         ])
         ->assertSessionHasErrors('color');
 
-    expect(Status::where('slug', 'bad-color')->exists())->toBeFalse();
+    expect(Status::where('name', 'Bad Color')->exists())->toBeFalse();
 });
 
-test('status name and slug are required and unique', function () {
+test('status name and color are required and name is unique', function () {
     $this->actingAs($this->admin)
         ->post(route('statuses.store'), [])
-        ->assertSessionHasErrors(['name', 'slug', 'color', 'sort_order']);
+        ->assertSessionHasErrors(['name', 'color', 'sort_order']);
 
     Status::create([
         'name' => 'Duplicate',
-        'slug' => 'duplicate',
         'color' => '#000000',
         'sort_order' => 1,
     ]);
@@ -78,17 +75,15 @@ test('status name and slug are required and unique', function () {
     $this->actingAs($this->admin)
         ->post(route('statuses.store'), [
             'name' => 'Duplicate',
-            'slug' => 'duplicate',
             'color' => '#000000',
             'sort_order' => 1,
         ])
-        ->assertSessionHasErrors(['name', 'slug']);
+        ->assertSessionHasErrors(['name']);
 });
 
 test('a status can be updated', function () {
     $status = Status::create([
         'name' => 'Old Name',
-        'slug' => 'old-name',
         'color' => '#000000',
         'sort_order' => 1,
     ]);
@@ -96,7 +91,6 @@ test('a status can be updated', function () {
     $this->actingAs($this->admin)
         ->put(route('statuses.update', $status), [
             'name' => 'New Name',
-            'slug' => 'new-name',
             'color' => '#16A34A',
             'description' => null,
             'sort_order' => 2,
@@ -107,34 +101,30 @@ test('a status can be updated', function () {
     $status->refresh();
 
     expect($status->name)->toBe('New Name');
-    expect($status->slug)->toBe('new-name');
     expect($status->color)->toBe('#16A34A');
 });
 
-test('updating a status ignores its own name and slug', function () {
+test('updating a status ignores its own name', function () {
     $status = Status::create([
         'name' => 'Kept',
-        'slug' => 'kept',
         'color' => '#000000',
         'sort_order' => 1,
     ]);
 
     $this->actingAs($this->admin)
         ->put(route('statuses.update', $status), [
-            'name' => 'Kept Renamed',
-            'slug' => 'kept-renamed',
+            'name' => 'Kept',
             'color' => '#000000',
             'sort_order' => 1,
         ])
         ->assertSessionHasNoErrors();
 
-    expect($status->refresh()->name)->toBe('Kept Renamed');
+    expect($status->refresh()->name)->toBe('Kept');
 });
 
 test('a status can be deleted', function () {
     $status = Status::create([
         'name' => 'Disposable',
-        'slug' => 'disposable',
         'color' => '#000000',
         'sort_order' => 1,
     ]);
@@ -143,5 +133,5 @@ test('a status can be deleted', function () {
         ->delete(route('statuses.destroy', $status))
         ->assertRedirect();
 
-    expect(Status::where('slug', 'disposable')->exists())->toBeFalse();
+    expect(Status::where('name', 'Disposable')->exists())->toBeFalse();
 });

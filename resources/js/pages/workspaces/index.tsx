@@ -1,19 +1,11 @@
-import { Head, router, useForm } from '@inertiajs/react';
-import { PencilIcon, PlusIcon, Search, Trash2 } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { ArrowRight, PencilIcon, PlusIcon, Search, Trash2 } from 'lucide-react';
 import { useState, type KeyboardEvent } from 'react';
 import Heading from '@/components/heading';
 import Pagination from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import workspaceRoutes from '@/routes/workspaces';
 import type { PaginatedDataResponse } from '@/types/pagination';
 import type { Workspace } from '@/types/workspace';
@@ -72,11 +64,6 @@ export default function Index({ workspaces, filters }: IndexProps) {
                 />
 
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <Button onClick={() => setOpenCreateDialog(true)}>
-                        <PlusIcon className="h-4 w-4" />
-                        Create Workspace
-                    </Button>
-
                     <div className="relative w-full sm:w-[250px]">
                         <Label htmlFor="search" className="sr-only">
                             Search
@@ -91,104 +78,102 @@ export default function Index({ workspaces, filters }: IndexProps) {
                         />
                         <Search className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
                     </div>
+
+                    <Button onClick={() => setOpenCreateDialog(true)}>
+                        <PlusIcon className="h-4 w-4" />
+                        Create Workspace
+                    </Button>
                 </div>
 
-                <div className="w-full overflow-hidden rounded-sm border shadow-sm">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow>
-                                <TableHead className="font-bold text-primary">
-                                    Color
-                                </TableHead>
-                                <TableHead className="font-bold text-primary">
-                                    Name
-                                </TableHead>
-                                <TableHead className="font-bold text-primary">
-                                    Slug
-                                </TableHead>
-                                <TableHead className="font-bold text-primary">
-                                    Description
-                                </TableHead>
-                                <TableHead className="text-right font-bold text-primary">
-                                    Action
-                                </TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {workspaces.data.length > 0 ? (
-                                workspaces.data.map((workspace) => (
-                                    <TableRow
-                                        key={workspace.id}
-                                        className="text-sm hover:bg-muted/30"
-                                    >
-                                        <TableCell>
-                                            <span
-                                                className="inline-block h-4 w-8 rounded-sm border shadow-sm"
-                                                style={{
-                                                    backgroundColor:
-                                                        workspace.color,
-                                                }}
-                                                title={workspace.color}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="text-sm font-medium">
-                                            {workspace.name}
-                                        </TableCell>
-                                        <TableCell className="font-mono text-xs">
-                                            {workspace.slug}
-                                        </TableCell>
-                                        <TableCell className="text-sm">
-                                            {workspace.description || (
-                                                <span className="text-muted-foreground">
-                                                    —
-                                                </span>
+                {workspaces.data.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3">
+                        {workspaces.data.map((workspace) => (
+                            <div
+                                key={workspace.id}
+                                className="group/card flex flex-col gap-1 overflow-hidden rounded-xl bg-muted/40 text-sm text-card-foreground ring-1 ring-foreground/10 transition-shadow hover:shadow-md"
+                            >
+                                <div className="flex items-start justify-between gap-2 px-4 py-3">
+                                    <div className="flex min-w-0 flex-col gap-1">
+                                        <Link
+                                            href={workspaceRoutes.show.url(
+                                                workspace.id,
                                             )}
-                                        </TableCell>
-                                        <TableCell className="text-sm">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
-                                                    onClick={() =>
-                                                        handleEditClick(
-                                                            workspace,
-                                                        )
-                                                    }
-                                                    title="Edit"
-                                                >
-                                                    <PencilIcon className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
-                                                    onClick={() =>
-                                                        handleDeleteClick(
-                                                            workspace,
-                                                        )
-                                                    }
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={5}
-                                        className="py-3 text-center text-gray-500"
-                                    >
-                                        No data available.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
+                                            className="truncate text-sm leading-snug font-semibold underline-offset-4 hover:underline"
+                                            title="Open workspace tasks"
+                                        >
+                                            {workspace.name}
+                                        </Link>
+                                        <p className="text-muted-foreground truncate text-sm">
+                                            {workspace.description ??
+                                                'No description'}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex shrink-0 items-center gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
+                                            onClick={() =>
+                                                handleEditClick(workspace)
+                                            }
+                                            title="Edit"
+                                        >
+                                            <PencilIcon className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                            onClick={() =>
+                                                handleDeleteClick(workspace)
+                                            }
+                                            title="Delete"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-1 flex-col justify-end gap-4 rounded-lg bg-card p-4 shadow-xs ring-1 ring-foreground/5">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground text-sm">
+                                            Tasks
+                                        </span>
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8"
+                                        >
+                                            <Link
+                                                href={workspaceRoutes.show.url(
+                                                    workspace.id,
+                                                )}
+                                                title="Open workspace tasks"
+                                            >
+                                                View
+                                                <ArrowRight className="h-3.5 w-3.5" />
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed py-12 text-center">
+                        <p className="text-sm text-muted-foreground">
+                            No data available.
+                        </p>
+                        <Button
+                            variant="link"
+                            onClick={() => setOpenCreateDialog(true)}
+                        >
+                            Create your first workspace
+                        </Button>
+                    </div>
+                )}
 
                 <Pagination data={workspaces} />
             </div>

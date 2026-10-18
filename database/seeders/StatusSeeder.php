@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Status;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class StatusSeeder extends Seeder
 {
@@ -25,7 +24,7 @@ class StatusSeeder extends Seeder
 
         foreach ($statuses as $status) {
             Status::updateOrCreate(
-                ['slug' => Str::slug($status['name'])],
+                ['name' => $status['name']],
                 $status,
             );
         }
