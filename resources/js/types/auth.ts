@@ -13,3 +13,14 @@ export type Auth = {
     roles: string[];
     permissions: string[];
 };
+
+export type SharedData = {
+    name: string;
+    auth: Auth;
+    flash?: {
+        type?: 'success' | 'info' | 'warning' | 'error';
+        message?: string;
+    };
+    sidebarOpen: boolean;
+    [key: string]: unknown;
+};
