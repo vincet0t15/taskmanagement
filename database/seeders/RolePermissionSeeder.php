@@ -20,6 +20,8 @@ class RolePermissionSeeder extends Seeder
         'permissions',
         'tasks',
         'task-categories',
+        'statuses',
+        'workspaces',
         'work-groups',
         'reports',
     ];
@@ -53,7 +55,7 @@ class RolePermissionSeeder extends Seeder
         // Office Head: runs the day-to-day work of an office. Full control of
         // the work modules, read-only on the administration modules.
         $officeHeadPermissions = [
-            ...$this->permissionsFor(['tasks', 'task-categories', 'work-groups', 'reports'], self::ACTIONS),
+            ...$this->permissionsFor(['tasks', 'task-categories', 'statuses', 'workspaces', 'work-groups', 'reports'], self::ACTIONS),
             ...$this->permissionsFor(['offices', 'accounts', 'roles', 'permissions'], ['view']),
         ];
 
@@ -64,7 +66,7 @@ class RolePermissionSeeder extends Seeder
         // read-only access to everything else.
         $staffPermissions = [
             ...$this->permissionsFor(['tasks'], ['view', 'create', 'edit']),
-            ...$this->permissionsFor(['offices', 'accounts', 'task-categories', 'work-groups', 'reports'], ['view']),
+            ...$this->permissionsFor(['offices', 'accounts', 'task-categories', 'statuses', 'workspaces', 'work-groups', 'reports'], ['view']),
         ];
 
         $staff = Role::firstOrCreate(['name' => 'Staff']);

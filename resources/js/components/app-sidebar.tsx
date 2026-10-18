@@ -2,7 +2,9 @@ import { Link } from '@inertiajs/react';
 import {
     BookOpen,
     Building2,
+    CircleDot,
     FolderGit2,
+    FolderKanban,
     KeyRound,
     LayoutGrid,
     Lock,
@@ -25,6 +27,8 @@ import { dashboard } from '@/routes';
 import offices from '@/routes/offices';
 import permissions from '@/routes/permissions';
 import roles from '@/routes/roles';
+import statuses from '@/routes/statuses';
+import workspaces from '@/routes/workspaces';
 import type { NavGroup, NavItem } from '@/types';
 
 const navGroups: NavGroup[] = [
@@ -46,6 +50,18 @@ const navGroups: NavGroup[] = [
                 href: offices.index(),
                 icon: Building2,
                 permission: 'offices.view',
+            },
+            {
+                title: 'Statuses',
+                href: statuses.index(),
+                icon: CircleDot,
+                permission: 'statuses.view',
+            },
+            {
+                title: 'Workspaces',
+                href: workspaces.index(),
+                icon: FolderKanban,
+                permission: 'workspaces.view',
             },
         ],
     },
