@@ -11,7 +11,7 @@ class RolePermissionSeeder extends Seeder
 {
     /**
      * Every module in the tasking system, each with view/create/edit/delete
-     * abilities (except "my-tasks", which is the self-service portal).
+     * abilities.
      */
     public const MODULES = [
         'offices',
@@ -22,7 +22,6 @@ class RolePermissionSeeder extends Seeder
         'task-categories',
         'work-groups',
         'reports',
-        'my-tasks',
     ];
 
     public const ACTIONS = [
@@ -54,7 +53,7 @@ class RolePermissionSeeder extends Seeder
         // Office Head: runs the day-to-day work of an office. Full control of
         // the work modules, read-only on the administration modules.
         $officeHeadPermissions = [
-            ...$this->permissionsFor(['tasks', 'task-categories', 'work-groups', 'reports', 'my-tasks'], self::ACTIONS),
+            ...$this->permissionsFor(['tasks', 'task-categories', 'work-groups', 'reports'], self::ACTIONS),
             ...$this->permissionsFor(['offices', 'accounts', 'roles', 'permissions'], ['view']),
         ];
 
@@ -64,7 +63,7 @@ class RolePermissionSeeder extends Seeder
         // Staff: creates and works on tasks but cannot delete them, and has
         // read-only access to everything else.
         $staffPermissions = [
-            ...$this->permissionsFor(['tasks', 'my-tasks'], ['view', 'create', 'edit']),
+            ...$this->permissionsFor(['tasks'], ['view', 'create', 'edit']),
             ...$this->permissionsFor(['offices', 'accounts', 'task-categories', 'work-groups', 'reports'], ['view']),
         ];
 
