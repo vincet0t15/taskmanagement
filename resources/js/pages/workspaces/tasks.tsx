@@ -213,7 +213,7 @@ export default function Tasks({ workspace, dashboard }: TasksProps) {
 
                 {/* Tabs: Overview/Tasks/Files/Brief/Timeline/Activity */}
                 <Tabs defaultValue="tasks" className="space-y-4">
-                    <TabsList className="w-full justify-start overflow-x-auto">
+                    <TabsList className="justify-start overflow-x-auto">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="tasks">Tasks</TabsTrigger>
                         <TabsTrigger value="files">Files</TabsTrigger>
