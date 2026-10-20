@@ -6,6 +6,7 @@ import {
     ChevronLeft,
     FileText,
     ListTodo,
+    MoreHorizontal,
     Plus,
     Share2,
 } from 'lucide-react';
@@ -22,6 +23,12 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
     Table,
     TableBody,
     TableCell,
@@ -35,6 +42,8 @@ import type { Status } from '@/types/status';
 import type { Task } from '@/types/task';
 import type { Workspace, WorkspaceDashboard } from '@/types/workspace';
 import { CreateTaskDialog } from './task-create';
+import { DeleteTaskDialog } from './task-delete';
+import { EditTaskDialog } from './task-edit';
 
 interface TasksProps {
     workspace: Workspace;
@@ -114,6 +123,19 @@ export default function Tasks({
     users = [],
 }: TasksProps) {
     const [openCreateTask, setOpenCreateTask] = useState(false);
+    const [openEditTask, setOpenEditTask] = useState(false);
+    const [openDeleteTask, setOpenDeleteTask] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+    const handleEdit = (task: Task) => {
+        setSelectedTask(task);
+        setOpenEditTask(true);
+    };
+
+    const handleDelete = (task: Task) => {
+        setSelectedTask(task);
+        setOpenDeleteTask(true);
+    };
 
     const totalTasks =
         dashboard.stats.find((s) => s.label === 'Total Tasks')?.value ?? 0;
@@ -350,6 +372,7 @@ export default function Tasks({
                                                 <TableHead>Status</TableHead>
                                                 <TableHead>Assignee</TableHead>
                                                 <TableHead>Due Date</TableHead>
+                                                <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -446,6 +469,41 @@ export default function Tasks({
                                                             ? task.due
                                                             : 'No due date'}
                                                     </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div onClick={(e) => e.stopPropagation()}>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                        >
+                                                            <MoreHorizontal className="size-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem
+                                                            onSelect={(e) => {
+                                                                e.preventDefault();
+                                                                setSelectedTask(task);
+                                                                setOpenEditTask(true);
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onSelect={(e) => {
+                                                                e.preventDefault();
+                                                                setSelectedTask(task);
+                                                                setOpenDeleteTask(true);
+                                                            }}
+                                                            className="text-destructive focus:text-destructive"
+                                                        >
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                                    </TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -502,6 +560,31 @@ export default function Tasks({
                     workspace={workspace}
                     statuses={statuses}
                     users={users}
+                />
+            )}
+
+            {openEditTask && (
+                <EditTaskDialog
+                    isOpen={openEditTask}
+                    onClose={() => {
+                        setOpenEditTask(false);
+                        setSelectedTask(null);
+                    }}
+                    workspace={workspace}
+                    task={selectedTask}
+                    statuses={statuses}
+                    users={users}
+                />
+            )}
+
+            {openDeleteTask && (
+                <DeleteTaskDialog
+                    isOpen={openDeleteTask}
+                    onClose={() => {
+                        setOpenDeleteTask(false);
+                        setSelectedTask(null);
+                    }}
+                    task={selectedTask}
                 />
             )}
         </>

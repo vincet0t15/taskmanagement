@@ -6,6 +6,8 @@ export interface Task {
     progress: number;
     due: string | null;
     assignee_ids: number[];
+    description?: string | null;
+    assignees?: Array<{ id: number; name: string; username: string }>;
 }
 
 export type TaskCreateRequest = {

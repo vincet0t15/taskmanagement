@@ -75,13 +75,17 @@ class WorkspaceController extends Controller
         return [
             'id' => $task->id,
             'name' => $task->name,
-            // Null-safe access without `?->`: the belongs-to relations can be
-            // null (status or assignee deleted), and `??` guards the access.
+            'description' => $task->description,
             'assignee' => $task->assignee->name ?? 'Unassigned',
             'status' => $task->status->name ?? 'To Do',
             'progress' => $task->progress,
             'due' => $task->due_date?->format('d/m/Y'),
             'assignee_ids' => $task->assignees->pluck('id')->toArray(),
+            'assignees' => $task->assignees->map(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'username' => $user->username,
+            ])->values()->all(),
         ];
     }
 
