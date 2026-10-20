@@ -35,7 +35,7 @@ export function DeleteTaskDialog({ isOpen, onClose, task }: DeleteTaskDialogProp
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} >
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="rounded-md sm:max-w-md">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <DialogHeader>

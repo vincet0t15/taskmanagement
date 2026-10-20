@@ -99,7 +99,7 @@ export function EditTaskDialog({
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleOpenChange} >
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogContent className="rounded-md sm:max-w-md">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <DialogHeader>
