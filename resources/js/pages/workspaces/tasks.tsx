@@ -476,17 +476,13 @@ export default function Tasks({
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                        }}
                                                     >
                                                         <MoreHorizontal className="size-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" sideOffset={4}>
                                                     <DropdownMenuItem
-                                                        onSelect={(e) => {
-                                                            e.preventDefault();
+                                                        onSelect={() => {
                                                             setSelectedTask(task);
                                                             setOpenEditTask(true);
                                                         }}
@@ -494,8 +490,7 @@ export default function Tasks({
                                                         Edit
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
-                                                        onSelect={(e) => {
-                                                            e.preventDefault();
+                                                        onSelect={() => {
                                                             setSelectedTask(task);
                                                             setOpenDeleteTask(true);
                                                         }}
@@ -566,7 +561,7 @@ export default function Tasks({
                 />
             )}
 
-            {openEditTask && (
+            {openEditTask && selectedTask && (
                 <EditTaskDialog
                     isOpen={openEditTask}
                     onClose={() => {
@@ -580,7 +575,7 @@ export default function Tasks({
                 />
             )}
 
-            {openDeleteTask && (
+            {openDeleteTask && selectedTask && (
                 <DeleteTaskDialog
                     isOpen={openDeleteTask}
                     onClose={() => {

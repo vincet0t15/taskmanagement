@@ -1,6 +1,5 @@
 import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import { useEffect } from 'react';
 import { CustomComboBox } from '@/components/CustomComboBox';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,7 @@ interface EditTaskDialogProps {
     isOpen: boolean;
     onClose: () => void;
     workspace: Workspace;
-    task: Task | null;
+    task: Task;
     statuses: Status[];
     users?: Array<{ id: number; name: string; username: string }>;
 }
@@ -50,25 +49,12 @@ export function EditTaskDialog({
 }: EditTaskDialogProps) {
     const { data, setData, put, reset, errors, processing } = useForm({
         workspace_id: workspace.id,
-        name: '',
-        description: '',
-        status_id: 0,
-        due_date: '',
-        assignee_ids: [] as number[],
+        name: task.name,
+        description: task.description ?? '',
+        status_id: statuses.find((s) => s.name === task.status)?.id ?? statuses[0]?.id ?? 0,
+        due_date: toDateInputValue(task.due),
+        assignee_ids: task.assignee_ids ?? [],
     });
-
-    useEffect(() => {
-        if (task) {
-            setData({
-                workspace_id: workspace.id,
-                name: task.name,
-                description: task.description ?? '',
-                status_id: statuses.find((s) => s.name === task.status)?.id ?? 0,
-                due_date: toDateInputValue(task.due),
-                assignee_ids: task.assignee_ids ?? [],
-            });
-        }
-    }, [task, statuses, workspace.id]);
 
     const statusItems = statuses.map((status) => ({
         value: String(status.id),
@@ -77,7 +63,6 @@ export function EditTaskDialog({
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!task) return;
 
         put(taskRoutes.update.url(task.id), {
             onSuccess: () => {
@@ -94,11 +79,8 @@ export function EditTaskDialog({
         }
     };
 
-    if (!task) {
-        return null;
-    }
-
     return (
+
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogContent className="rounded-md sm:max-w-md">
                 <form onSubmit={onSubmit} className="space-y-4">

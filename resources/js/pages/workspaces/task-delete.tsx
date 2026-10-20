@@ -16,7 +16,7 @@ import type { Task } from '@/types/task';
 interface DeleteTaskDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    task: Task | null;
+    task: Task;
 }
 
 export function DeleteTaskDialog({ isOpen, onClose, task }: DeleteTaskDialogProps) {
@@ -24,15 +24,10 @@ export function DeleteTaskDialog({ isOpen, onClose, task }: DeleteTaskDialogProp
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!task) return;
         destroy(taskRoutes.destroy.url(task.id), {
             onSuccess: () => onClose(),
         });
     };
-
-    if (!task) {
-        return null;
-    }
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
