@@ -3,6 +3,7 @@ import type { FormEventHandler } from 'react';
 import { CustomComboBox } from '@/components/CustomComboBox';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { ComboboxMultipleExpandable } from '@/components/ui/combobox-multiple-expandable';
 import {
     Dialog,
     DialogClose,
@@ -25,6 +26,7 @@ interface CreateTaskDialogProps {
     onClose: () => void;
     workspace: Workspace;
     statuses: Status[];
+    users?: Array<{ id: number; name: string; username: string }>;
 }
 
 /**
@@ -44,6 +46,7 @@ export function CreateTaskDialog({
     onClose,
     workspace,
     statuses,
+    users = [],
 }: CreateTaskDialogProps) {
     const { data, setData, post, reset, errors, processing } =
         useForm<TaskCreateRequest>({
@@ -168,26 +171,23 @@ export function CreateTaskDialog({
 
                     {/* Multiple assignees selector */}
                     <div className="grid gap-2">
-                        <Label htmlFor="task-assignees">Assignees</Label>
-                        <select
-                            id="task-assignees"
-                            name="assignee_ids"
-                            multiple
-                            size={4}
-                            className="w-full rounded-md border px-3 py-2 focus:ring-primary focus:border-primary"
-                            value={data.assignee_ids.join(',')}
-                            onChange={(e) => {
-                                const ids = e.target.value
-                                    .split(',')
-                                    .map((id: string) => id.trim())
-                                    .filter((id: string) => id.length > 0)
-                                    .map((id: string) => Number(id));
-                                setData('assignee_ids', ids);
+                        <ComboboxMultipleExpandable
+                            label="Assignees"
+                            items={users}
+                            value={users
+                                .filter((u) => data.assignee_ids.includes(u.id))
+                                .map((u) => u)}
+                            onValueChange={(vals) => {
+                                setData(
+                                    'assignee_ids',
+                                    vals.map((v) => v.id),
+                                );
                             }}
-                        >
-                            {/* Options will be populated dynamically or we can add default options */}
-                            <option value="">No assignees selected</option>
-                        </select>
+                            getLabel={(user) => user.name}
+                            getValue={(user) => user.id}
+                            maxVisible={2}
+                            placeholder="Search assignees..."
+                        />
                         <InputError message={errors.assignee_ids} />
                     </div>
 

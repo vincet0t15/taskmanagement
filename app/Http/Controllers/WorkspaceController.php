@@ -6,6 +6,7 @@ use App\Contracts\Repositories\StatusRepositoryInterface;
 use App\Contracts\Repositories\TaskRepositoryInterface;
 use App\Contracts\Repositories\WorkspaceRepositoryInterface;
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Workspace;
 use App\Services\WorkspaceDashboardSampleData;
 use Illuminate\Http\RedirectResponse;
@@ -51,6 +52,7 @@ class WorkspaceController extends Controller
                 ->values()
                 ->all(),
             'statuses' => $this->statusRepo->getAll(),
+            'users' => User::select('id', 'name', 'username')->get(),
         ]);
     }
 
@@ -79,6 +81,7 @@ class WorkspaceController extends Controller
             'status' => $task->status->name ?? 'To Do',
             'progress' => $task->progress,
             'due' => $task->due_date?->format('d/m/Y'),
+            'assignee_ids' => $task->assignees->pluck('id')->toArray(),
         ];
     }
 

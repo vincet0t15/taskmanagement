@@ -33,6 +33,7 @@ interface TasksProps {
     dashboard: WorkspaceDashboard;
     tasks: Task[];
     statuses: Status[];
+    users?: Array<{ id: number; name: string; username: string }>;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -102,6 +103,7 @@ export default function Tasks({
     dashboard,
     tasks,
     statuses,
+    users = [],
 }: TasksProps) {
     const [openCreateTask, setOpenCreateTask] = useState(false);
 
@@ -534,6 +536,7 @@ export default function Tasks({
                     onClose={() => setOpenCreateTask(false)}
                     workspace={workspace}
                     statuses={statuses}
+                    users={users}
                 />
             )}
         </>
