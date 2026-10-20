@@ -21,6 +21,14 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import workspaceRoutes from '@/routes/workspaces';
 import type { Status } from '@/types/status';
@@ -228,7 +236,7 @@ export default function Tasks({
                 </Card>
 
                 {/* Tabs: Overview/Tasks/Files/Brief/Timeline/Activity */}
-                <Tabs defaultValue="tasks" className="space-y-4">
+                <Tabs defaultValue="overview" className="space-y-4">
                     <TabsList className="justify-start overflow-x-auto">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="tasks">Tasks</TabsTrigger>
@@ -312,9 +320,9 @@ export default function Tasks({
                                     New Task
                                 </Button>
                             </CardHeader>
-                            <CardContent className="space-y-3">
+                            <CardContent className="p-0">
                                 {tasks.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed px-4 py-10 text-center">
+                                    <div className="flex flex-col items-center justify-center gap-2 px-4 py-10 text-center">
                                         <ListTodo className="size-8 text-muted-foreground" />
                                         <p className="text-sm font-medium">
                                             No tasks yet
@@ -335,64 +343,113 @@ export default function Tasks({
                                         </Button>
                                     </div>
                                 ) : (
-                                    tasks.map((task) => (
-                                        <div
-                                            key={task.id}
-                                            className="flex flex-col justify-between gap-2 rounded-md border p-3 sm:flex-row sm:items-center"
-                                        >
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <p className="text-sm font-medium">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Task</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead>Assignee</TableHead>
+                                                <TableHead>Due Date</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {tasks.map((task) => (
+                                                <TableRow key={task.id}>
+                                                    <TableCell className="font-medium">
                                                         {task.name}
-                                                    </p>
-                                                    
-                                                </div>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {task.due
-                                                        ? `Due ${task.due}`
-                                                        : 'No due date'}
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-2 w-[120px] overflow-hidden rounded-full bg-muted">
-                                                    <div
-                                                        className="h-full rounded-full bg-primary"
-                                                        style={{
-                                                            width: `${task.progress}%`,
-                                                        }}
-                                                    />
-                                                </div>
-                                                <span className="w-9 text-right text-xs text-muted-foreground tabular-nums">
-                                                    {task.progress}%
-                                                </span>
-                                                {/* Show multiple assignees */}
-                                                {task.assignees?.length > 0 ? (
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {task.assignees.map((user, index) => (
-                                                            <span
-                                                                key={index}
-                                                                className="px-2 py-0.5 text-xs rounded bg-primary/20 text-primary"
-                                                            >
-                                                                {user.name ? user.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase() : ''}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <Avatar className="size-6">
-                                                        <AvatarImage />
-                                                        <AvatarFallback className="text-xs">
-                                                            {task.assignee
-                                                                .split(' ')
-                                                                .map((n) => n[0])
-                                                                .join('')
-                                                                .slice(0, 2)
-                                                                .toUpperCase()}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge
+                                                            className={
+                                                                STATUS_STYLES[
+                                                                    task.status
+                                                                ] ??
+                                                                'bg-muted text-muted-foreground'
+                                                            }
+                                                        >
+                                                            {task.status}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {task.assignees &&
+                                                        task.assignees.length >
+                                                            0 ? (
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {task.assignees.map(
+                                                                    (
+                                                                        user,
+                                                                        index,
+                                                                    ) => (
+                                                                        <span
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                            className="px-2 py-0.5 text-xs rounded bg-primary/20 text-primary"
+                                                                        >
+                                                                            {user.name
+                                                                                ? user.name
+                                                                                      .split(
+                                                                                          ' ',
+                                                                                      )
+                                                                                      .map(
+                                                                                          (
+                                                                                              n,
+                                                                                          ) =>
+                                                                                              n[0],
+                                                                                      )
+                                                                                      .join(
+                                                                                          '',
+                                                                                      )
+                                                                                      .substring(
+                                                                                          0,
+                                                                                          2,
+                                                                                      )
+                                                                                      .toUpperCase()
+                                                                                : ''}
+                                                                        </span>
+                                                                    ),
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-2">
+                                                                <Avatar className="size-6">
+                                                                    <AvatarImage />
+                                                                    <AvatarFallback className="text-xs">
+                                                                        {task.assignee
+                                                                            .split(
+                                                                                ' ',
+                                                                            )
+                                                                            .map(
+                                                                                (
+                                                                                    n,
+                                                                                ) =>
+                                                                                    n[0],
+                                                                            )
+                                                                            .join(
+                                                                                '',
+                                                                            )
+                                                                            .slice(
+                                                                                0,
+                                                                                2,
+                                                                            )
+                                                                            .toUpperCase()}
+                                                                    </AvatarFallback>
+                                                                </Avatar>
+                                                                <span className="text-sm">
+                                                                    {task.assignee}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-muted-foreground">
+                                                        {task.due
+                                                            ? task.due
+                                                            : 'No due date'}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
                                 )}
                             </CardContent>
                         </Card>
@@ -435,99 +492,7 @@ export default function Tasks({
                     </TabsContent>
                 </Tabs>
 
-                {/* Team and Project Info */}
-                <div className="grid gap-4 lg:grid-cols-3">
-                    <Card className="lg:col-span-2">
-                        <CardHeader className="flex-row items-center justify-between">
-                            <div>
-                                <CardTitle>Team</CardTitle>
-                                <CardDescription>
-                                    Members assigned
-                                </CardDescription>
-                            </div>
-                            <Button variant="outline" size="sm">
-                                Add
-                            </Button>
-                        </CardHeader>
-                        <CardContent className="flex flex-wrap gap-3">
-                            {dashboard.recent_tasks.slice(0, 4).map((task) => (
-                                <div
-                                    key={task.assignee}
-                                    className="flex items-center gap-2 rounded-md border p-2"
-                                >
-                                    <Avatar className="size-8">
-                                        <AvatarImage />
-                                        <AvatarFallback>
-                                            {task.assignee
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')
-                                                .slice(0, 2)
-                                                .toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="space-y-0.5">
-                                        <p className="text-sm font-medium">
-                                            {task.assignee}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {task.status}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Project Info</CardTitle>
-                            <CardDescription>Workspace details</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-2 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                    Workspace
-                                </span>
-                                <span className="font-medium">
-                                    {workspace.name}
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                    Industry
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Government
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                    Started
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Jan 8, 2026
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                    Deadline
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Feb 28, 2026
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                    Type
-                                </span>
-                                <span className="text-muted-foreground">
-                                    Tasking
-                                </span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
 
             {openCreateTask && (

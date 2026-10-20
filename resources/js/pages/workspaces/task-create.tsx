@@ -86,7 +86,7 @@ export function CreateTaskDialog({
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange} modal={false}>
             <DialogContent className="rounded-md sm:max-w-md">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <DialogHeader>

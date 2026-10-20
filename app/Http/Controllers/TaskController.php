@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\Repositories\TaskRepositoryInterface;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -24,22 +23,23 @@ class TaskController extends Controller
             'workspace_id' => ['required', 'integer', Rule::exists('workspaces', 'id')],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
-            // Required on the way in even though the column is nullable: the
-            // column only accepts null so deleting a status keeps its tasks.
             'status_id' => ['required', 'integer', Rule::exists('statuses', 'id')],
             'due_date' => ['nullable', 'date'],
-            // Optional: array of user IDs for multiple assignees
             'assignee_ids' => ['nullable', 'array'],
+            'assignee_ids.*' => ['integer', Rule::exists('users', 'id')],
         ]);
 
-        $task = $this->taskRepo->create(array_merge($validated, [
-            'assignee_id' => $validated['assignee_ids'] ?? null,
-        ]));
+        $assigneeIds = $validated['assignee_ids'] ?? [];
 
-        // Handle multiple assignees via pivot table
-        if (!empty($validated['assignee_ids'])) {
-            $task->assignees()->sync($validated['assignee_ids']);
-        }
+        $taskData = $validated;
+        unset($taskData['assignee_ids']);
+
+        // Use first assignee as primary assignee if exists
+        $taskData['assignee_id'] = !empty($assigneeIds) ? $assigneeIds[0] : null;
+
+        $task = $this->taskRepo->create($taskData);
+
+        $task->assignees()->sync($assigneeIds);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Task created successfully.')]);
 
