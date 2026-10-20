@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Repositories\StatusRepositoryInterface;
+use App\Contracts\Repositories\TaskRepositoryInterface;
 use App\Contracts\Repositories\WorkspaceRepositoryInterface;
+use App\Models\Task;
 use App\Models\Workspace;
 use App\Services\WorkspaceDashboardSampleData;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +19,8 @@ class WorkspaceController extends Controller
     public function __construct(
         private readonly WorkspaceRepositoryInterface $workspaceRepo,
         private readonly WorkspaceDashboardSampleData $dashboardData,
+        private readonly TaskRepositoryInterface $taskRepo,
+        private readonly StatusRepositoryInterface $statusRepo,
     ) {}
 
     /**
@@ -41,6 +46,11 @@ class WorkspaceController extends Controller
         return Inertia::render('workspaces/tasks', [
             'workspace' => $workspace,
             'dashboard' => $this->dashboardData->for($workspace),
+            'tasks' => $this->taskRepo->getByWorkspace($workspace->id)
+                ->map(fn (Task $task): array => $this->presentTask($task))
+                ->values()
+                ->all(),
+            'statuses' => $this->statusRepo->getAll(),
         ]);
     }
 
@@ -49,10 +59,27 @@ class WorkspaceController extends Controller
      */
     public function tasks(Workspace $workspace): Response
     {
-        return Inertia::render('workspaces/tasks', [
-            'workspace' => $workspace,
-            'dashboard' => $this->dashboardData->for($workspace),
-        ]);
+        return $this->show($workspace);
+    }
+
+    /**
+     * Shape a task for the tasks view, matching the sample dashboard task
+     * payload so the frontend only ever deals with one task shape.
+     *
+     * @return array{id: int, name: string, assignee: string, status: string, progress: int, due: string|null}
+     */
+    private function presentTask(Task $task): array
+    {
+        return [
+            'id' => $task->id,
+            'name' => $task->name,
+            // Null-safe access without `?->`: the belongs-to relations can be
+            // null (status or assignee deleted), and `??` guards the access.
+            'assignee' => $task->assignee->name ?? 'Unassigned',
+            'status' => $task->status->name ?? 'To Do',
+            'progress' => $task->progress,
+            'due' => $task->due_date?->format('d/m/Y'),
+        ];
     }
 
     /**

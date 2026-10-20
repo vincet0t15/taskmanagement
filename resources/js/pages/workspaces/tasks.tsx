@@ -5,9 +5,11 @@ import {
     Calendar,
     ChevronLeft,
     FileText,
+    ListTodo,
     Plus,
     Share2,
 } from 'lucide-react';
+import { useState } from 'react';
 import Heading from '@/components/heading';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -21,11 +23,16 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import workspaceRoutes from '@/routes/workspaces';
+import type { Status } from '@/types/status';
+import type { Task } from '@/types/task';
 import type { Workspace, WorkspaceDashboard } from '@/types/workspace';
+import { CreateTaskDialog } from './task-create';
 
 interface TasksProps {
     workspace: Workspace;
     dashboard: WorkspaceDashboard;
+    tasks: Task[];
+    statuses: Status[];
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -90,7 +97,14 @@ function StatCard({
     );
 }
 
-export default function Tasks({ workspace, dashboard }: TasksProps) {
+export default function Tasks({
+    workspace,
+    dashboard,
+    tasks,
+    statuses,
+}: TasksProps) {
+    const [openCreateTask, setOpenCreateTask] = useState(false);
+
     const totalTasks =
         dashboard.stats.find((s) => s.label === 'Total Tasks')?.value ?? 0;
     const completed =
@@ -284,73 +298,100 @@ export default function Tasks({ workspace, dashboard }: TasksProps) {
                                 <div>
                                     <CardTitle>Tasks</CardTitle>
                                     <CardDescription>
-                                        {dashboard.recent_tasks.length} of{' '}
-                                        {totalTasks} · {completed} done
+                                        {tasks.length} of {totalTasks} ·{' '}
+                                        {completed} done
                                     </CardDescription>
                                 </div>
-                                <Button size="sm">
+                                <Button
+                                    size="sm"
+                                    onClick={() => setOpenCreateTask(true)}
+                                >
                                     <Plus className="mr-2 size-4" />
                                     New Task
                                 </Button>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                {dashboard.recent_tasks.map((task) => (
-                                    <div
-                                        key={task.id}
-                                        className="flex flex-col justify-between gap-2 rounded-md border p-3 sm:flex-row sm:items-center"
-                                    >
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-sm font-medium">
-                                                    {task.name}
-                                                </p>
-                                                <Badge
-                                                    className={
-                                                        STATUS_STYLES[
-                                                            task.status
-                                                        ]
-                                                    }
-                                                    variant="secondary"
-                                                >
-                                                    {task.status}
-                                                </Badge>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground">
-                                                Article · Due {task.due}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-[120px] overflow-hidden rounded-full bg-muted">
-                                                <div
-                                                    className="h-full rounded-full bg-primary"
-                                                    style={{
-                                                        width: `${task.progress}%`,
-                                                    }}
-                                                />
-                                            </div>
-                                            <span className="w-9 text-right text-xs text-muted-foreground tabular-nums">
-                                                {task.progress}%
-                                            </span>
-                                            <Badge
-                                                variant="outline"
-                                                className="text-xs"
-                                            >
-                                                In review
-                                            </Badge>
-                                            <Avatar className="size-6">
-                                                <AvatarImage />
-                                                <AvatarFallback className="text-xs">
-                                                    {task.assignee
-                                                        .split(' ')
-                                                        .map((n) => n[0])
-                                                        .join('')
-                                                        .slice(0, 2)
-                                                        .toUpperCase()}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                        </div>
+                                {tasks.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed px-4 py-10 text-center">
+                                        <ListTodo className="size-8 text-muted-foreground" />
+                                        <p className="text-sm font-medium">
+                                            No tasks yet
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Create the first task for{' '}
+                                            {workspace.name}.
+                                        </p>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                setOpenCreateTask(true)
+                                            }
+                                        >
+                                            <Plus className="mr-2 size-4" />
+                                            New Task
+                                        </Button>
                                     </div>
-                                ))}
+                                ) : (
+                                    tasks.map((task) => (
+                                        <div
+                                            key={task.id}
+                                            className="flex flex-col justify-between gap-2 rounded-md border p-3 sm:flex-row sm:items-center"
+                                        >
+                                            <div className="space-y-1">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-sm font-medium">
+                                                        {task.name}
+                                                    </p>
+                                                    
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {task.due
+                                                        ? `Due ${task.due}`
+                                                        : 'No due date'}
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-2 w-[120px] overflow-hidden rounded-full bg-muted">
+                                                    <div
+                                                        className="h-full rounded-full bg-primary"
+                                                        style={{
+                                                            width: `${task.progress}%`,
+                                                        }}
+                                                    />
+                                                </div>
+                                                <span className="w-9 text-right text-xs text-muted-foreground tabular-nums">
+                                                    {task.progress}%
+                                                </span>
+                                                {/* Show multiple assignees */}
+                                                {task.assignees?.length > 0 ? (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {task.assignees.map((user, index) => (
+                                                            <span
+                                                                key={index}
+                                                                className="px-2 py-0.5 text-xs rounded bg-primary/20 text-primary"
+                                                            >
+                                                                {user.name ? user.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase() : ''}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <Avatar className="size-6">
+                                                        <AvatarImage />
+                                                        <AvatarFallback className="text-xs">
+                                                            {task.assignee
+                                                                .split(' ')
+                                                                .map((n) => n[0])
+                                                                .join('')
+                                                                .slice(0, 2)
+                                                                .toUpperCase()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -486,6 +527,15 @@ export default function Tasks({ workspace, dashboard }: TasksProps) {
                     </Card>
                 </div>
             </div>
+
+            {openCreateTask && (
+                <CreateTaskDialog
+                    isOpen={openCreateTask}
+                    onClose={() => setOpenCreateTask(false)}
+                    workspace={workspace}
+                    statuses={statuses}
+                />
+            )}
         </>
     );
 }

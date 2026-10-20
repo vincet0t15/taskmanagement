@@ -141,3 +141,12 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Hides the scrollbar on the combobox option list. */
+@utility no-scrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

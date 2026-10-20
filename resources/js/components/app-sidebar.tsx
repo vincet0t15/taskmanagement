@@ -6,6 +6,7 @@ import {
     KeyRound,
     LayoutGrid,
     Lock,
+    Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -19,6 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useCanAny } from '@/hooks/use-can';
 import { dashboard } from '@/routes';
+import accounts from '@/routes/accounts';
 import offices from '@/routes/offices';
 import permissions from '@/routes/permissions';
 import roles from '@/routes/roles';
@@ -45,6 +47,12 @@ const navGroups: NavGroup[] = [
                 href: offices.index(),
                 icon: Building2,
                 permission: 'offices.view',
+            },
+            {
+                title: 'Employees',
+                href: accounts.index(),
+                icon: Users,
+                permission: 'accounts.view',
             },
             {
                 title: 'Statuses',

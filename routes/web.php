@@ -9,8 +9,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+require __DIR__.'/accounts.php';
 require __DIR__.'/offices.php';
 require __DIR__.'/roles.php';
 require __DIR__.'/permissions.php';
 require __DIR__.'/statuses.php';
+require __DIR__.'/tasks.php';
 require __DIR__.'/workspaces.php';

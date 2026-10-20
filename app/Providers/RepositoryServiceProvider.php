@@ -4,9 +4,13 @@ namespace App\Providers;
 
 use App\Contracts\Repositories\OfficeRepositoryInterface;
 use App\Contracts\Repositories\StatusRepositoryInterface;
+use App\Contracts\Repositories\TaskRepositoryInterface;
+use App\Contracts\Repositories\UserRepositoryInterface;
 use App\Contracts\Repositories\WorkspaceRepositoryInterface;
 use App\Repositories\OfficeRepository;
 use App\Repositories\StatusRepository;
+use App\Repositories\TaskRepository;
+use App\Repositories\UserRepository;
 use App\Repositories\WorkspaceRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -19,6 +23,8 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $this->app->bind(OfficeRepositoryInterface::class, OfficeRepository::class);
         $this->app->bind(StatusRepositoryInterface::class, StatusRepository::class);
+        $this->app->bind(TaskRepositoryInterface::class, TaskRepository::class);
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(WorkspaceRepositoryInterface::class, WorkspaceRepository::class);
     }
 }
