@@ -158,7 +158,10 @@ export function EditTaskDialog({
                             label="Assignees"
                             items={users}
                             value={users.filter((u) => data.assignee_ids.includes(u.id))}
-                            onValueChange={(vals) => setData('assignee_ids', vals.map((v) => v.id))}
+                            onValueChange={(vals) => {
+                                const ids = vals.map((v) => v.id);
+                                setData('assignee_ids', ids);
+                            }}
                             getLabel={(user) => user.name}
                             getValue={(user) => user.id}
                             maxVisible={2}
