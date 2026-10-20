@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEventHandler } from 'react';
+import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -22,7 +22,7 @@ interface DeleteTaskDialogProps {
 export function DeleteTaskDialog({ isOpen, onClose, task }: DeleteTaskDialogProps) {
     const { delete: destroy, processing } = useForm();
 
-    const onSubmit: FormEventHandler = (e) => {
+    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!task) return;
         destroy(taskRoutes.destroy.url(task.id), {
@@ -35,7 +35,7 @@ export function DeleteTaskDialog({ isOpen, onClose, task }: DeleteTaskDialogProp
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal={false}>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} >
             <DialogContent className="rounded-md sm:max-w-md">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <DialogHeader>

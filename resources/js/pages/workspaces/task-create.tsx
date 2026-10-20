@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEventHandler } from 'react';
+import type { FormEvent } from 'react';
 import { CustomComboBox } from '@/components/CustomComboBox';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -67,7 +67,7 @@ export function CreateTaskDialog({
     // TODO: Fetch workspace tasks for parent task selector
     // const parentTaskItems = ...;
 
-    const onSubmit: FormEventHandler = (e) => {
+    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         post(taskRoutes.store.url(), {

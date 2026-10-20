@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import type { FormEventHandler } from 'react';
+import type { FormEvent } from 'react';
 import { useEffect } from 'react';
 import { CustomComboBox } from '@/components/CustomComboBox';
 import InputError from '@/components/input-error';
@@ -75,7 +75,7 @@ export function EditTaskDialog({
         label: status.name,
     }));
 
-    const onSubmit: FormEventHandler = (e) => {
+    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!task) return;
 
@@ -99,7 +99,7 @@ export function EditTaskDialog({
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleOpenChange} modal={false}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange} >
             <DialogContent className="rounded-md sm:max-w-md">
                 <form onSubmit={onSubmit} className="space-y-4">
                     <DialogHeader>
